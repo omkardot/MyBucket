@@ -10,6 +10,10 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.omkar.mybucket.ui.theme.Typography
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -49,10 +53,21 @@ fun MyBucketTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
+    val AppTypography = androidx.compose.material3.Typography(
+        bodyLarge = TextStyle(
+            fontFamily = Hankengrotesk,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp
+        ),
+        headlineLarge = TextStyle(
+            fontFamily = Hankengrotesk,
+            fontWeight = FontWeight.Bold,
+            fontSize = 32.sp
+        )
+    )
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = AppTypography,
         content = content
     )
 }

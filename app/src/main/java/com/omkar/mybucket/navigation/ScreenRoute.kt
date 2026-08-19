@@ -2,6 +2,7 @@ package com.omkar.mybucket.navigation
 
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.ListAlt
@@ -18,6 +19,9 @@ sealed class ScreenRoute(
     object Responsibilities : ScreenRoute("responsibilities", "Tasks", Icons.Default.ListAlt)
     object Timeline : ScreenRoute("timeline", "Timeline", Icons.Default.Timeline)
     object Insights : ScreenRoute("insights", "Insights", Icons.Default.Analytics)
+    object AddTask : ScreenRoute("add?responsibilityId={responsibilityId}", "Add Tasks", Icons.Default.Add) {
+        fun createRoute(id: Long? = null) = if (id != null) "add?responsibilityId=$id" else "add"
+    }
 
     // Non-bottom nav screens can be declared here without icons
     object Detail : ScreenRoute("detail/{responsibilityId}", "Detail", Icons.Default.ListAlt) {

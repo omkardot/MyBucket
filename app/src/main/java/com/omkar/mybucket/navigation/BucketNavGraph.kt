@@ -54,7 +54,7 @@ fun BucketNavGraph(
                     navController.navigate(ScreenRoute.Detail.createRoute(responsibilityId))
                 },
                 onAddClick = {
-//                    navController.navigate(ScreenRoute..createRoute(0L))
+                    navController.navigate(ScreenRoute.AddTask.route)
                 }
             )
         }

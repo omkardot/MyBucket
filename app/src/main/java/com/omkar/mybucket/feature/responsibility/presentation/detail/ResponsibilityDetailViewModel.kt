@@ -1,6 +1,9 @@
 package com.omkar.mybucket.feature.responsibility.presentation.detail
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -26,7 +29,8 @@ class ResponsibilityDetailViewModel(
     private val responsibilityId: Long,
     private val repository: ResponsibilityRepository
 ) : ViewModel() {
-
+    var showSuccessDialog by mutableStateOf(false)
+        private set
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
@@ -46,12 +50,29 @@ class ResponsibilityDetailViewModel(
             }
         }
     }
+    fun getTaskID(): Long{
+        return responsibilityId
+    }
 
     fun toggleEditMode() {
         val currentState = _uiState.value as? DetailUiState.Success ?: return
         _uiState.value = currentState.copy(isEditing = !currentState.isEditing)
     }
 
+    fun saveUpdatedDiscriptionTodb(discription:String){
+        viewModelScope.launch {
+            val currentState = _uiState.value as? DetailUiState.Success ?: return@launch
+            val updatedEntity = currentState.itemWithEvents.responsibility.copy(
+                description = discription,
+                updatedAt = System.currentTimeMillis()
+            )
+            showSuccessDialog = true
+            repository.updateResponsibility(updatedEntity)
+        }
+    }
+    fun dismissSuccessDialog() {
+        showSuccessDialog = false
+    }
     fun updateStatus(newStage: String) {
         viewModelScope.launch {
             val currentState = _uiState.value as? DetailUiState.Success ?: return@launch
@@ -62,7 +83,30 @@ class ResponsibilityDetailViewModel(
             repository.updateResponsibility(updatedEntity)
         }
     }
+    fun updateStatus(newStage: String, notes: String = "", issuesFound: String? = null) {
+        viewModelScope.launch {
+            val currentState = _uiState.value as? DetailUiState.Success ?: return@launch
+            val timeSpent = calculateTimeSpentInMins(currentState.itemWithEvents.responsibility.createdAt )
 
+            // 1. Update Responsibility stage
+            val updatedEntity = currentState.itemWithEvents.responsibility.copy(
+                currentStage = newStage,
+                updatedAt = System.currentTimeMillis()
+            )
+            repository.updateResponsibility(updatedEntity)
+
+            // 2. Automatically log the timeline event with time spent
+            val event = LifecycleEventEntity(
+                responsibilityId = responsibilityId,
+                stage = newStage,
+                timestamp = System.currentTimeMillis(),
+                timeSpentMinutes = timeSpent,
+                notes = notes,
+                issuesFound = issuesFound
+            )
+            repository.insertTimelineEvent(event)
+        }
+    }
     fun saveTaskDetails(
         title: String,
         description: String,
@@ -77,7 +121,6 @@ class ResponsibilityDetailViewModel(
                 description = description,
                 project = project,
                 priority = priority,
-                estimatedHours = estimatedHours,
                 updatedAt = System.currentTimeMillis()
             )
             repository.updateResponsibility(updatedEntity)

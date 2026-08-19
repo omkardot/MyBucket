@@ -55,11 +55,11 @@ class ResponsibilityListViewModel(
 
     fun createResponsibility(title: String, description: String, project: String) {
         viewModelScope.launch {
-            repository.createResponsibility(
-                title = title,
-                description = description,
-                project = project
-            )
+//            repository.createResponsibility(
+//                title = title,
+//                description = description,
+//                project = project
+//            )
         }
     }
 }

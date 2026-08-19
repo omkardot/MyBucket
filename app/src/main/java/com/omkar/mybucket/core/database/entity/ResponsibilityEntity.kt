@@ -15,8 +15,9 @@ data class ResponsibilityEntity(
     val description: String,
     val project: String = "General",
     val priority: String = "Medium",
-    val estimatedHours: Int = 0,
-    val currentStage: String = "Created",
+    val codestack: String = "Medium",
+    val assignedBy: String = "TL",
+    val currentStage: String = "Developement",
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

@@ -22,6 +22,9 @@ import com.omkar.mybucket.feature.insights.presentation.InsightsScreen
 import com.omkar.mybucket.feature.insights.presentation.InsightsViewModel
 import com.omkar.mybucket.feature.insights.presentation.InsightsViewModelFactory
 import com.omkar.mybucket.feature.responsibility.data.ResponsibilityRepository
+import com.omkar.mybucket.feature.responsibility.presentation.add_edit.AddEditResponsibilityViewModel
+import com.omkar.mybucket.feature.responsibility.presentation.add_edit.AddTaskScreen
+import com.omkar.mybucket.feature.responsibility.presentation.add_edit.AddTaskViewModelFacttory
 import com.omkar.mybucket.feature.responsibility.presentation.detail.ResponsibilityDetailScreen
 import com.omkar.mybucket.feature.responsibility.presentation.detail.ResponsibilityDetailViewModel
 import com.omkar.mybucket.feature.responsibility.presentation.detail.ResponsibilityDetailViewModelFactory
@@ -65,7 +68,7 @@ fun MainScreen() {
                 DashboardScreen(
                     viewModel = viewModel,
                     onItemClick = { id -> navController.navigate(ScreenRoute.Detail.createRoute(id)) },
-                    onAddClick = { /*navController.navigate(ScreenRoute.AddEdit.createRoute(0L))*/ }
+                    onAddClick = { navController.navigate(ScreenRoute.AddTask.createRoute()) }
                 )
             }
 
@@ -101,19 +104,25 @@ fun MainScreen() {
             }
 
             // 5. Add / Edit Responsibility Sub-screen
-            /*composable(
-                route = ScreenRoute.AddEdit.route,
-                arguments = listOf(navArgument("responsibilityId") { type = NavType.LongType; defaultValue = 0L })
-            ) { backStack ->
-                val id = backStack.arguments?.getLong("responsibilityId") ?: 0L
-                val viewModel: AddEditResponsibilityViewModel = viewModel(
-                    factory = AddEditResponsibilityViewModelFactory(id, repository)
+            composable(
+                route = ScreenRoute.AddTask.route,
+                arguments = listOf(
+                    navArgument("responsibilityId") {
+                        type = NavType.LongType
+                        defaultValue = 0L
+                    }
                 )
-                AddEditResponsibilityScreen(
+            ) { backStackEntry ->
+                val viewModel: AddEditResponsibilityViewModel = viewModel(
+                    viewModelStoreOwner = backStackEntry,
+                    factory = AddTaskViewModelFacttory(repository)
+                )
+
+                AddTaskScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.popBackStack() }
                 )
-            }*/
+            }
 
             // 6. Responsibility Detail Sub-screen
             composable(

@@ -27,12 +27,19 @@ class ResponsibilityRepository(
     suspend fun insertTimelineEvent(event: LifecycleEventEntity) {
         dao.insertLifecycleEvent(event)
     }
-    suspend fun createResponsibility(title: String, description: String, project: String): Long {
+    suspend fun createResponsibility(
+        title: String,
+        description: String,
+        codeStack: String,
+        assignedBy: String,
+        priority: String): Long {
         val responsibility = ResponsibilityEntity(
             title = title,
             description = description,
-            project = project,
-            currentStage = "Created"
+            codestack = codeStack,
+            priority = priority,
+            assignedBy = assignedBy,
+            currentStage = "Developement"
         )
         val resId = dao.insertResponsibility(responsibility)
 

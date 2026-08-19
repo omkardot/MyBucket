@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.material.icons.extended)
-
     // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
 }

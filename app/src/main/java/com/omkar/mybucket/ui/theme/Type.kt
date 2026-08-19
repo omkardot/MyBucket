@@ -7,6 +7,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 // Set of Material typography styles to start with
+import androidx.compose.ui.text.font.Font
+import com.omkar.mybucket.R
+
+val Hankengrotesk = FontFamily(
+    Font(R.font.hankengrotesk, FontWeight.Normal),
+    Font(R.font.hankengrotesk, FontWeight.Bold),
+    Font(R.font.hankengrotesk, FontWeight.Medium)
+)
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
