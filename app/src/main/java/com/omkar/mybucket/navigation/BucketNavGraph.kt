@@ -71,7 +71,7 @@ fun BucketNavGraph(
                 onItemClick = { id ->
                     Log.d("Navcontroller",id.toString())
                     navController.navigate(ScreenRoute.Detail.createRoute(id))
-                }
+                },onAddClick = { navController.navigate(ScreenRoute.AddTask.createRoute()) }
             )
         }
         composable(ScreenRoute.Timeline.route) {

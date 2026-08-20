@@ -107,23 +107,8 @@ fun AddTaskScreen(
                     )
                 },
                 actions = {
-                    // Profile Avatar Placeholder
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF004B8D)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "JD",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                },
+                                    },
+
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFFBF9F8)
                 )

@@ -50,9 +50,6 @@ class ResponsibilityDetailViewModel(
             }
         }
     }
-    fun getTaskID(): Long{
-        return responsibilityId
-    }
 
     fun toggleEditMode() {
         val currentState = _uiState.value as? DetailUiState.Success ?: return

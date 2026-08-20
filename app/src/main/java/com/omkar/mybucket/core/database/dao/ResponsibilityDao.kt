@@ -31,6 +31,10 @@ interface ResponsibilityDao {
     @Query("SELECT * FROM responsibilities WHERE id = :id")
     fun getResponsibilityById(id: Long): Flow<ResponsibilityWithEvents?>
 
+    @Transaction
+    @Query("SELECT * FROM responsibilities")
+    fun getAllResponsibilityById(): Flow<ResponsibilityWithEvents?>
+
     @Query("SELECT * FROM lifecycle_events ORDER BY timestamp DESC")
     fun getAllLifecycleEventsChronological(): Flow<List<LifecycleEventEntity>>
 

@@ -5,13 +5,13 @@ import com.omkar.mybucket.feature.responsibility.data.ResponsibilityRepository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.omkar.mybucket.feature.responsibility.presentation.detail.DetailUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
 class ResponsibilityListViewModel(
     private val repository: ResponsibilityRepository
 ) : ViewModel() {
@@ -29,7 +29,8 @@ class ResponsibilityListViewModel(
                     item.responsibility.description.contains(query, ignoreCase = true) ||
                     item.responsibility.project.contains(query, ignoreCase = true)
 
-            val matchesStage = stageFilter == null || item.responsibility.currentStage == stageFilter
+            val matchesStage = stageFilter == null ||
+                    item.responsibility.currentStage.equals(stageFilter, ignoreCase = true)
 
             matchesQuery && matchesStage
         }
@@ -50,16 +51,11 @@ class ResponsibilityListViewModel(
     }
 
     fun onStageFilterSelect(stage: String?) {
-        _selectedStageFilter.value = if (_selectedStageFilter.value == stage) null else stage
-    }
-
-    fun createResponsibility(title: String, description: String, project: String) {
-        viewModelScope.launch {
-//            repository.createResponsibility(
-//                title = title,
-//                description = description,
-//                project = project
-//            )
+        // Reset to null if "All Tasks" is selected or if the same stage chip is clicked again
+        _selectedStageFilter.value = if (stage == "All Tasks" || _selectedStageFilter.value == stage) {
+            null
+        } else {
+            stage
         }
     }
 }

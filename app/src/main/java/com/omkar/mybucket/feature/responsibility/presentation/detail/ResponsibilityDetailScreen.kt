@@ -90,7 +90,6 @@ fun ResponsibilityDetailScreen(
         },
         onUpdateStatus = { stage ->
             viewModel.updateStatus(stage,"",null)
-//            viewModel.addTimelineEvent(stage, timespent, notes = "", "3")
         },
         onToggleEditMode = { viewModel.toggleEditMode() },
     )

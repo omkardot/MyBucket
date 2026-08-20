@@ -17,6 +17,9 @@ class ResponsibilityRepository(
     fun getResponsibilityWithEvents(id: Long): Flow<ResponsibilityWithEvents?> {
         return dao.getResponsibilityById(id)
     }
+    fun getAllResponsibilityWithEvents(): Flow<ResponsibilityWithEvents?> {
+        return dao.getAllResponsibilityById()
+    }
 
     // 2. Alias/Method for inserting/updating a responsibility entity
     suspend fun updateResponsibility(responsibility: ResponsibilityEntity) {

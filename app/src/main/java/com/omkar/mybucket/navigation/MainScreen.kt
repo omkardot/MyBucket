@@ -80,6 +80,7 @@ fun MainScreen() {
                 ResponsibilityListScreen(
                     viewModel = viewModel,
                     onItemClick = { id -> navController.navigate(ScreenRoute.Detail.createRoute(id)) },
+                    onAddClick = { navController.navigate(ScreenRoute.AddTask.createRoute()) }
 
                 )
             }

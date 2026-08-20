@@ -17,12 +17,14 @@ class DashboardViewModel(
     val uiState: StateFlow<DashboardUiState> = repository.allResponsibilities
         .map { items ->
             val total = items.size
-            val inProgress = items.count { it.responsibility.currentStage == "In Progress" }
+            val inProgress = items.count { it.responsibility.currentStage == "Development" }
             val blocked = items.count { it.responsibility.currentStage == "Blocked" }
-            val completed = items.count { it.responsibility.currentStage == "Completed" }
+            val completed = items.count { it.responsibility.currentStage == "Post-prod" }
 
             // Active items exclude completed items
-            val active = items.filter { it.responsibility.currentStage != "Completed" }
+            val active = items.filter { it.responsibility.currentStage != "Post-prod" &&
+                    it.responsibility.currentStage != "Blocked"
+            }
 
             DashboardUiState.Success(
                 metrics = DashboardMetrics(

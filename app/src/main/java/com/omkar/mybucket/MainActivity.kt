@@ -39,16 +39,44 @@ class MainActivity : ComponentActivity() {
             MyBucketTheme(darkTheme = false) {
                 var showSplash by remember { mutableStateOf(true) }
 
-                if (showSplash) {
+                /*if (showSplash) {
                     SplashScreen(onSplashFinished = { showSplash = false })
                 } else {
                     MainScreen() // Your main app content
+                }*/
+                if (showSplash) {
+                    SplashScreen(
+                        onSplashFinished = {
+                            showSplash = false
+                        }
+                    )
+                } else {
+                    LoginScreen(
+                        onNavigateToSignUp = {  },
+                        onForgotPasswordClick = { },
+                        onGoogleSignInClick = { },
+                        onLoginSuccess = {  }
+                    )
                 }
             }
         }
     }
 }
 
+/*if (showSplash) {
+    SplashScreen(
+        onSplashFinished = {
+            showSplash = false
+        }
+    )
+} else {
+    LoginScreen(
+        onNavigateToSignUp = { *//* Navigate to Sign Up *//* },
+        onForgotPasswordClick = { *//* Navigate to Forgot Password *//* },
+        onGoogleSignInClick = { *//* Handle Google Sign In *//* },
+        onLoginSuccess = {  }
+    )
+}*/
 @Composable
 fun MainAppScreen() {
     val navController = rememberNavController()

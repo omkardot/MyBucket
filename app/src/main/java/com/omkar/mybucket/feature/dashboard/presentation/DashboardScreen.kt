@@ -52,8 +52,13 @@ import com.omkar.mybucket.R
 import com.omkar.mybucket.core.database.model.ResponsibilityWithEvents
 
 import com.omkar.mybucket.feature.dashboard.components.MetricCard
+import com.omkar.mybucket.feature.responsibility.presentation.detail.calculateTimeSpentInMins
 import com.omkar.mybucket.ui.theme.Hankengrotesk
 import com.omkar.mybucket.ui.theme.toComposeColor
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,8 +134,8 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-
                 when (val state = uiState) {
+
                     is DashboardUiState.Loading -> {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
@@ -158,13 +163,13 @@ fun DashboardScreen(
                                     ) {
                                         MetricCard(
                                             title = "ONGOING",
-                                            count = state.metrics.totalCount,
+                                            count = state.metrics.inProgressCount,
                                             modifier = Modifier.weight(1f),
                                             fontFamily = Hankengrotesk
                                         )
                                         MetricCard(
                                             title = "BLOCKED",
-                                            count = state.metrics.inProgressCount,
+                                            count = state.metrics.blockedCount,
                                             modifier = Modifier.weight(1f),
                                             badgeColor = "#ba1a1a".toComposeColor(),
                                             icon = Icons.Default.Block,
@@ -198,24 +203,25 @@ fun DashboardScreen(
                                     )
                                 }
                             } else {
+
+                                val topResponsibilities = state.activeResponsibilities.take(3)
+
                                 itemsIndexed(
-                                    items = state.activeResponsibilities,
+                                    items = topResponsibilities,
                                     key = { _, item -> item.responsibility.id }
                                 ) { index, item ->
                                     ElevatedCard(
                                         onClick = { onItemClick(item.responsibility.id) },
                                         modifier = Modifier.fillMaxWidth(),
                                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                                        // Correct way to set card colors in Material 3:
                                         colors = CardDefaults.cardColors(
                                             containerColor = Color.Transparent,
-                                            contentColor = "#1B1C1C".toComposeColor()
+                                            contentColor = Color(0xFF1B1C1C)
                                         )
                                     ) {
-                                        // Render TimelineItem directly inside the card without an extra Row
                                         TimelineItem(
                                             item = item,
-                                            isLastItem = index == state.activeResponsibilities.lastIndex
+                                            isLastItem = index == topResponsibilities.lastIndex
                                         )
                                     }
                                 }
@@ -273,14 +279,60 @@ fun TimelineItem(
         ) {
             Text(
                 text = item.responsibility.title,
+                fontFamily = Hankengrotesk,
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = item.responsibility.project,
+                fontFamily = Hankengrotesk,
+                text = calculateLastUpdateOnTime(item.responsibility.createdAt),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
         }
     }
+}
+fun calculateLastUpdateOnTime(timestamp: Long): String {
+    val now = Calendar.getInstance()
+    val updatedTime = Calendar.getInstance().apply { timeInMillis = timestamp }
+
+    val diffInMillis = now.timeInMillis - updatedTime.timeInMillis
+    val diffInMinutes = diffInMillis / (1000 * 60)
+    val diffInHours = diffInMinutes / 60
+
+    // Time Formatter for hours/minutes (e.g., 2:30 PM)
+    val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
+    // 1. Just now
+    if (diffInMinutes < 1) {
+        return "Just now"
+    }
+
+    // 2. Updated today (Less than 60 mins -> minutes ago)
+    if (diffInMinutes < 60) {
+        return "$diffInMinutes min${if (diffInMinutes > 1) "s" else ""} ago"
+    }
+
+    // 3. Updated today (Same day check)
+    val isSameDay = now.get(Calendar.YEAR) == updatedTime.get(Calendar.YEAR) &&
+            now.get(Calendar.DAY_OF_YEAR) == updatedTime.get(Calendar.DAY_OF_YEAR)
+
+    if (isSameDay) {
+        return "$diffInHours hr${if (diffInHours > 1) "s" else ""} ago"
+    }
+
+    // 4. Updated yesterday
+    val yesterday = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, -1)
+    }
+    val isYesterday = yesterday.get(Calendar.YEAR) == updatedTime.get(Calendar.YEAR) &&
+            yesterday.get(Calendar.DAY_OF_YEAR) == updatedTime.get(Calendar.DAY_OF_YEAR)
+
+    if (isYesterday) {
+        return "Yesterday, ${timeFormat.format(Date(timestamp))}"
+    }
+
+    // 5. Older than yesterday (e.g., 14 Aug, 2:30 PM)
+    val dateFormat = SimpleDateFormat("d MMM, h:mm a", Locale.getDefault())
+    return dateFormat.format(Date(timestamp))
 }
