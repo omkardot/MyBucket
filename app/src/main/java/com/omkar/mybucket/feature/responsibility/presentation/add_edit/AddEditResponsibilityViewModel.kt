@@ -16,13 +16,19 @@ class AddEditResponsibilityViewModel(
         description: String,
         codeStack: String,
         assignedBy: String,
-        priority: String
+        priority: String,
+        selectedcomplexity: String,
+        selectedestimatedTime: String,
+        dateText: String
     ) {
         viewModelScope.launch {
             repo.createResponsibility(
                 title = title,
                 description = description,
-                codeStack = codeStack, assignedBy = assignedBy, priority = priority
+                codeStack = codeStack, assignedBy = assignedBy, priority = priority,
+                complexity = selectedcomplexity,
+                estimatedTime = selectedestimatedTime,
+                dateText = dateText
             )
         }
     }

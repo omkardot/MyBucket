@@ -10,13 +10,15 @@ import kotlinx.coroutines.flow.Flow
 class ResponsibilityRepository(
     private val dao: ResponsibilityDao
 ) {
-    val allResponsibilities: Flow<List<ResponsibilityWithEvents>> = dao.getAllResponsibilitiesWithEvents()
+    val allResponsibilities: Flow<List<ResponsibilityWithEvents>> =
+        dao.getAllResponsibilitiesWithEvents()
     val timelineEvents: Flow<List<LifecycleEventEntity>> = dao.getAllLifecycleEventsChronological()
 
     // 1. Alias/Method for getting responsibility with events
     fun getResponsibilityWithEvents(id: Long): Flow<ResponsibilityWithEvents?> {
         return dao.getResponsibilityById(id)
     }
+
     fun getAllResponsibilityWithEvents(): Flow<ResponsibilityWithEvents?> {
         return dao.getAllResponsibilityById()
     }
@@ -30,19 +32,27 @@ class ResponsibilityRepository(
     suspend fun insertTimelineEvent(event: LifecycleEventEntity) {
         dao.insertLifecycleEvent(event)
     }
+
     suspend fun createResponsibility(
         title: String,
         description: String,
         codeStack: String,
+        complexity: String,
+        estimatedTime: String,
+        dateText: String,
         assignedBy: String,
-        priority: String): Long {
+        priority: String
+    ): Long {
         val responsibility = ResponsibilityEntity(
             title = title,
             description = description,
             codestack = codeStack,
             priority = priority,
             assignedBy = assignedBy,
-            currentStage = "Developement"
+            currentStage = "Developement",
+            complexity = complexity,
+            estimatedTime = estimatedTime,
+            targetDate = dateText,
         )
         val resId = dao.insertResponsibility(responsibility)
 
@@ -54,6 +64,7 @@ class ResponsibilityRepository(
         dao.insertLifecycleEvent(initialEvent)
         return resId
     }
+
     // Existing helper method for logging events and updating current stage
     suspend fun addLifecycleEvent(
         responsibilityId: Long,

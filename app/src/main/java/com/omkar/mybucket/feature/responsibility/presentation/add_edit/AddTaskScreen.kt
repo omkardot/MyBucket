@@ -7,6 +7,7 @@ import com.omkar.mybucket.feature.responsibility.presentation.list.Responsibilit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,9 +26,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +64,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.omkar.mybucket.ui.theme.Hankengrotesk
 import com.omkar.mybucket.ui.theme.toComposeColor
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,16 +81,23 @@ fun AddTaskScreen(
     var taskTitle by remember { mutableStateOf("") }
     var selectedStack by remember { mutableStateOf("Android") }
     var selectedPriority by remember { mutableStateOf("High") }
+    var selectedcomplexity by remember { mutableStateOf("Medium") }
     var notes by remember { mutableStateOf("") }
 
     // Dropdown (Spinner) State for "Assigned By"
     var expanded by remember { mutableStateOf(false) }
-    val assignedByOptions = listOf("Select Assignee", "Atish Sir", "Samrat Sir", "Love Sir","Kunal Sir")
+    var dateText by remember { mutableStateOf("") }
+    var expandedentimatedTimeSpinner by remember { mutableStateOf(false) }
+    val assignedByOptions =
+        listOf("Select Assignee", "Atish Sir", "Samrat Sir", "Love Sir", "Kunal Sir")
     var selectedAssignedBy by remember { mutableStateOf(assignedByOptions[0]) }
 
-    val stackOptions = listOf("Android", "Server", "RND","Self Learn")
+    val stackOptions = listOf("Android", "Server", "RND", "Self Learn")
+    val estimatedEffort = listOf("30min", "1hr", "1 Day", "2+ Days")
     val priorityOptions = listOf("High", "Medium", "Low")
+    val complexityOptions = listOf("High", "Medium", "Low", "Complex")
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var selectedestimatedTime by remember { mutableStateOf("1 Day") }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
@@ -89,7 +105,7 @@ fun AddTaskScreen(
                 modifier = Modifier.shadow(elevation = 4.dp),
                 title = {
                     Text(
-                        text = "Add Tasks",
+                        text = "Add Responsibility",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = fontFamily,
@@ -107,7 +123,7 @@ fun AddTaskScreen(
                     )
                 },
                 actions = {
-                                    },
+                },
 
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFFBF9F8)
@@ -176,65 +192,6 @@ fun AddTaskScreen(
             )
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            // 2. STACK Section
-            Text(
-                text = "STACK",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = fontFamily,
-                color = Color(0xFF5E6066),
-                letterSpacing = 1.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)
-            , verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                stackOptions.forEach { option ->
-                    SelectableChip(
-                        text = option,
-                        isSelected = selectedStack == option,
-                        fontFamily = fontFamily,
-                        onClick = { selectedStack = option }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 3. PRIORITY Section
-            Text(
-                text = "PRIORITY",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = fontFamily,
-                color = Color(0xFF5E6066),
-                letterSpacing = 1.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                priorityOptions.forEach { option ->
-                    val selectedBg = when (option) {
-                        "High" -> Color(0xFF004B8D)
-                        "Medium" -> Color(0xFFC2E0FF)
-                        else -> Color(0xFFE4E5EA)
-                    }
-                    val selectedText = if (option == "Medium") Color(0xFF004B8D) else Color.White
-
-                    SelectableChip(
-                        text = option,
-                        isSelected = selectedPriority == option,
-                        selectedColor = selectedBg,
-                        selectedTextColor = selectedText,
-                        fontFamily = fontFamily,
-                        onClick = { selectedPriority = option }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 4. ASSIGNED BY (Spinner / Dropdown)
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = selectedAssignedBy,
@@ -264,7 +221,6 @@ fun AddTaskScreen(
                         .matchParentSize()
                         .clickable { expanded = true }
                 )
-
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -283,8 +239,166 @@ fun AddTaskScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "PLANNING",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamily,
+                color = "#424752".toComposeColor(),
+                letterSpacing = 1.sp
+            )
+            // 2. STACK Section
 
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Stack",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamily,
+                color = Color(0xFF5E6066),
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                stackOptions.forEach { option ->
+                    SelectableChip(
+                        text = option,
+                        isSelected = selectedStack == option,
+                        fontFamily = fontFamily,
+                        onClick = { selectedStack = option }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 3. PRIORITY Section
+            Text(
+                text = "Priority",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamily,
+                color = Color(0xFF5E6066),
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                priorityOptions.forEach { option ->
+                    val selectedBg = when (option) {
+                        "High" -> Color(0xFF004B8D)
+                        "Medium" -> Color(0xFFC2E0FF)
+                        else -> Color(0xFFE4E5EA)
+                    }
+                    val selectedText = if (option == "Medium") Color(0xFF004B8D) else Color.White
+
+                    SelectableChip(
+                        text = option,
+                        isSelected = selectedPriority == option,
+                        selectedColor = selectedBg,
+                        selectedTextColor = selectedText,
+                        fontFamily = fontFamily,
+                        onClick = { selectedPriority = option }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Complexity",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamily,
+                color = Color(0xFF5E6066),
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                complexityOptions.forEach { option ->
+                    val selectedBg = when (option) {
+                        "High" -> Color(0xFF004B8D)
+                        "Medium" -> Color(0xFFC2E0FF)
+                        "Small" -> Color(0xFFC2E0FF)
+                        "Complex" -> Color(0xFFC2E0FF)
+                        else -> Color(0xFFE4E5EA)
+                    }
+                    val selectedText = if (option == "Medium") Color(0xFF004B8D) else Color.White
+
+                    SelectableChip(
+                        text = option,
+                        isSelected = selectedcomplexity == option,
+                        selectedColor = selectedBg,
+                        selectedTextColor = selectedText,
+                        fontFamily = fontFamily,
+                        onClick = { selectedcomplexity = option }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = selectedestimatedTime,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Expand dropdown",
+                            tint = Color(0xFF5E6066)
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedBorderColor = Color(0xFFE0E0E0),
+                        focusedBorderColor = Color(0xFF004B8D),
+                        unfocusedTextColor = if (selectedestimatedTime == "30 Min") Color(
+                            0xFF8E8E93
+                        ) else Color(0xFF1B1C1C)
+                    )
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { expandedentimatedTimeSpinner = true }
+                )
+                DropdownMenu(
+                    expanded = expandedentimatedTimeSpinner,
+                    onDismissRequest = { expandedentimatedTimeSpinner = false },
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                ) {
+                    estimatedEffort.drop(1).forEach { name ->
+                        DropdownMenuItem(
+                            text = { Text(text = name, fontFamily = fontFamily) },
+                            onClick = {
+                                selectedestimatedTime = name
+                                expandedentimatedTimeSpinner = false
+                            }
+                        )
+                    }
+                }
+
+
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            DatePickerTextField(
+                label = "Target Date (Optional)",
+                selectedDate = dateText,
+                onDateSelected = { newDate ->
+                    dateText = newDate
+                }
+            )
             // 5. Initial Notes & Context Multiline Box
+            Spacer(modifier = Modifier.height(20.dp))
+
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
@@ -313,13 +427,17 @@ fun AddTaskScreen(
             Button(
                 onClick = {
                     var selectedAssignie by mutableStateOf("")
-                    if (selectedAssignedBy == "Select Assignee") selectedAssignie = "My self" else selectedAssignie = selectedAssignedBy
+                    if (selectedAssignedBy == "Select Assignee") selectedAssignie =
+                        "My self" else selectedAssignie = selectedAssignedBy
                     viewModel.createResponsibility(
                         taskTitle,
                         notes,
                         selectedStack,
                         selectedAssignie,
                         selectedPriority,
+                        selectedcomplexity,
+                        selectedestimatedTime,
+                        dateText
                     )
                     showSuccessDialog = true
                 },
@@ -356,7 +474,73 @@ fun AddTaskScreen(
         }
     }
 }
+@Composable
+fun DatePickerTextField(
+    label: String = "Select Date",
+    selectedDate: String,
+    onDateSelected: (String) -> Unit
+) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = selectedDate,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Select Date"
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Transparent clickable overlay to open the picker reliably
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    showDatePicker = true
+                }
+        )
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            // Format selected epoch millis to String
+                            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).apply {
+                                timeZone = TimeZone.getTimeZone("UTC")
+                            }
+                            val formattedDate = formatter.format(Date(millis))
+                            onDateSelected(formattedDate)
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
 @Composable
 fun SelectableChip(
     text: String,

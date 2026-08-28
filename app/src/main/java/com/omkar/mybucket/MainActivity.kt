@@ -39,12 +39,12 @@ class MainActivity : ComponentActivity() {
             MyBucketTheme(darkTheme = false) {
                 var showSplash by remember { mutableStateOf(true) }
 
-                /*if (showSplash) {
+                if (showSplash) {
                     SplashScreen(onSplashFinished = { showSplash = false })
                 } else {
                     MainScreen() // Your main app content
-                }*/
-                if (showSplash) {
+                }
+                /*if (showSplash) {
                     SplashScreen(
                         onSplashFinished = {
                             showSplash = false
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                         onGoogleSignInClick = { },
                         onLoginSuccess = {  }
                     )
-                }
+                }*/
             }
         }
     }

@@ -11,7 +11,7 @@ import com.omkar.mybucket.core.database.entity.ResponsibilityEntity
 
 @Database(
     entities = [ResponsibilityEntity::class, LifecycleEventEntity::class],
-    version = 3, // Incremented version from 1 to 2
+    version = 4, // Incremented version from 1 to 2
     exportSchema = false
 )
 abstract class BucketDatabase : RoomDatabase() {
